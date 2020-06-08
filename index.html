@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>Safe Routing | Barikoi</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.6.0/leaflet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.0/leaflet.draw.css">
+    <link rel="stylesheet" href="routing/dist/leaflet-routing-machine.css" />
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.6.0/leaflet.js" integrity="sha256-fNoRrwkP2GuYPbNSJmMJOCyfRB2DhPQe0rGTgzRsyso=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.0/leaflet.draw-src.js"></script>
+
+    <script src="routing/dist/leaflet-routing-machine.js"></script>
+    <script src="routing/dist/graphhoper.js"></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.js'></script>
+     <script src='https://rawgit.com/mapbox/mapbox-gl-leaflet/master/leaflet-mapbox-gl.js'></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous">
+    </script>
+
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js" integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30=" crossorigin="anonymous">
+    </script>
+    <!-- jQuery UI -->
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <style>
+        .map {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .ui-autocomplete {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 100001;
+            display: none;
+            float: left;
+            min-width: 160px;
+            padding: 5px 0;
+            margin: 2px 0 0;
+            list-style: none;
+            font-size: 14px;
+            text-align: left;
+            background-color: #ffffff;
+            border: 1px solid #cccccc;
+            border-radius: 1px;
+            -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+            
+            }
+
+            .ui-autocomplete > li > div {
+            /*display: block;*/
+             position: absolute; 
+            padding: 3px 20px;
+            clear: both;
+            font-weight: normal;
+            line-height: 1.42857143;
+            color: #333333;
+            z-index: 10001;
+            white-space: nowrap;
+            }
+
+             .ui-state-hover,
+            .ui-state-active,
+            .ui-state-focus {
+            text-decoration: none;
+            color: #262626;
+            background-color: #f5f5f5;
+            cursor: pointer;
+            }
+
+            .ui-helper-hidden-accessible {
+            border: 0;
+            clip: rect(0 0 0 0);
+            height: 1px;
+            margin: -1px;
+            overflow: hidden;
+            padding: 0;
+            position: absolute;
+            width: 1px;
+            }
+
+             /*.leaflet-marker-icon, .leaflet-marker-shadow, .leaflet-image-layer, .leaflet-pane > svg path, .leaflet-tile-container {
+                pointer-events: none;
+                position: static;
+            }*/
+
+            #address1{
+                margin-bottom: 1em;
+            }
+
+
+            @media (max-width: 400px) { 
+
+                #address1{
+                    margin-left: 1em
+                    margin-bottom: 1em;
+                    width: 60%;
+                    height: 3em;
+
+                }
+                #address2{
+                    margin-left: 1em
+                    width: 60%;
+                    height: 3em;
+
+                }
+
+                .leaflet-routing-alt, .leaflet-routing-geocoders, .leaflet-routing-error{
+                    display: none;
+                }
+
+            }
+
+
+            @media (max-width: 576px) { 
+
+                #address1{
+                    margin-bottom: 1em;
+                    width: 70%;
+                    height: 3em;
+
+                }
+                #address2{
+                    width: 70%;
+                    height: 3em;
+
+                }
+
+                .custom-margin{
+                    margin-left: 3em
+                }
+
+                .leaflet-routing-alt, .leaflet-routing-geocoders, .leaflet-routing-error{
+                    display: none;
+                }
+
+            }
+
+
+            @media (max-width: 768px) {  
+                
+                #address1{
+                    margin-bottom: 1em;
+                    width: 70%;
+                    height: 3em;
+
+                }
+                #address2{
+                    width: 70%
+                    height: 3em;
+
+                }
+
+
+
+            }
+            
+    </style>
+</head>
+
+<body>
+    <div class="row custom-margin" style="position: absolute;z-index: 100001;width: 100%;margin-top:1em;">
+            <div class="col-md-4 col-sm-4 col-xs-4"></div>
+            <div class="col-md-4 col-sm-4 col-xs-4">
+            <form>
+            <div class="form-column align-items-center">
+                <div class="col-auto">
+                <input type='text' id='address1' class="form-control" placeholder="Source">
+                </div>
+                <div class="col-auto">
+                <input type='text' id='address2' class="form-control" placeholder="Destination">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4 col-sm-4 col-xs-4"></div>
+            
+        </div>
+    <div id="map" class="map">
+        <div style="text-align: justify; bottom: 10px; z-index: 99999; position: absolute; background: white; padding: .3em;font-size: medium;margin-left: 1em;">
+                               Powered By <a href="https://barikoi.com" target="_blank"><img src="./logo2.png" style="width: 5.4em; height: 1.4em;margin-top: -3px;" ></a><br>
+                               Technology Partner: <a href="https://mcc.com.bd/" target="_blank"><b>MCC Limited</b></a>
+                            </div>
+    </div>
+</body>
+<script>
+    var token = 'pk.eyJ1Ijoicmhvc3NhaW4iLCJhIjoiY2o4Ymt0NndlMHVoMDMzcnd1ZGs4dnJjMSJ9.5Y-mrWQCMXqWTe__0J5w4w'
+var map = L.map('map');
+
+// L.tileLayer('https://a.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoicmhvc3NhaW4iLCJhIjoiY2o4Ymt0NndlMHVoMDMzcnd1ZGs4dnJjMSJ9.5Y-mrWQCMXqWTe__0J5w4w', {
+//     attribution: '© OpenStreetMap contributors'
+// }).addTo(map);
+
+
+// L.tileLayer('http://geoserver.barikoi.com:8099/styles/osm-liberty/{z}/{x}/{y}.png', {
+//     attribution: '© OpenStreetMap contributors'
+// }).addTo(map);
+
+var gl = L.mapboxGL({
+    accessToken: token,
+    style: 'https://map.barikoi.com/styles/osm-liberty/style.json',
+    attribution: '© Barikoi'
+}).addTo(map);
+// L.Routing.control({
+//     waypoints: [
+
+//         L.latLng(23.870313, 90.38801),
+//         L.latLng(23.865868, 90.390223)
+//     ],
+//     routeWhileDragging: true,
+//     router: L.Routing.graphHopper(undefined /* no api key */ , {
+//         serviceUrl: 'http://geoserver.barikoi.com:8989/route',
+//         urlParameters: { //'ch.disable': true,
+//             block_area: '23.869519,90.387287,50'
+//         }
+//     })
+//     //  router: L.Routing.graphHopper('25d582b4-ba14-4bdd-a43f-03d02919283f')
+// }).addTo(map);
+
+
+let selectedPlace = null;
+let routing_data1 = null;
+let routing_data2 = null;
+let defaultMarker = [23.834010701627, 90.367334864249];
+var mpLayer = L.layerGroup();
+var drawnItems = new L.FeatureGroup();
+map.addLayer(drawnItems);
+
+
+            // Set the title to show on the polygon button
+            L.drawLocal.draw.toolbar.buttons.polygon = 'Draw a polygon!';
+
+            var drawControl = new L.Control.Draw({
+                position: 'topleft',
+                draw: {
+                    // polyline: {
+                    //     metric: true
+                    // },
+                    polygon: {
+                        // allowIntersection: true,
+                        // showArea: true,
+                        drawError: {
+                            color: '#662d91',
+                            timeout: 1000
+                        },
+                        shapeOptions: {
+                            color: '#b00b00'
+                        }
+                    },
+                    circle: {
+                        shapeOptions: {
+                            color: '#b00b00'
+                        }
+                    },
+                    marker: false
+                },
+                edit: {
+                    featureGroup: drawnItems,
+                    remove: false
+                }
+            });
+            map.addControl(drawControl);    
+
+
+
+map.addLayer(mpLayer);
+let source_lat
+let source_lng
+let dest_lng
+setMapPointer();
+$(function() {
+
+    $("#address1").autocomplete({
+        source: function(request, response) {
+            // Fetch data
+            $.ajax({
+                url: `https://barikoi.xyz/v1/api/search/autocomplete/MTc6UkFRMUJJSVlLVQ==/place`,
+                type: 'GET',
+                dataType: "json",
+                data: {
+                    q: request.term
+                },
+                success: function(data) {
+                    let places = data.places;
+
+                    function prepareData(item) {
+                        return {
+                            'label': item.address,
+                            'id': item.id,
+                            'address': item.address,
+                            'area': item.area,
+                            'city': item.city,
+                            'latitude': item.latitude,
+                            'longitude': item.longitude,
+                        }
+                    }
+
+                    response(places.map(prepareData));
+                }
+            });
+        },
+        select: function(event, ui) {
+            mpLayer.clearLayers();
+
+            try{
+                 map.removeControl(routing_data1);
+                 map.removeControl(routing_data2);
+            }
+            catch(e){
+                routing_data1 = L.Routing.control({
+                waypoints: [
+
+                    L.latLng(23.32423, 90.2343),
+                    L.latLng(23.32423, 90.2343)
+                ],
+                routeWhileDragging: true,
+                //  router: L.Routing.graphHopper('25d582b4-ba14-4bdd-a43f-03d02919283f')
+            })
+
+            routing_data2 = L.Routing.control({
+                waypoints: [
+
+                    L.latLng(23.32423, 90.2343),
+                    L.latLng(23.32423, 90.2343)
+                ],
+                routeWhileDragging: true,
+                //  router: L.Routing.graphHopper('25d582b4-ba14-4bdd-a43f-03d02919283f')
+            })
+                map.removeControl(routing_data1);
+                map.removeControl(routing_data2);
+            }
+
+            selectedPlace = ui.item;
+            defaultMarker = [ui.item.latitude, ui.item.longitude];
+            source_lat = ui.item.latitude
+            source_lng = ui.item.longitude
+            setMapPointer();
+        }
+    });
+
+     $("#address2").autocomplete({
+        source: function(request, response) {
+            // Fetch data
+            $.ajax({
+                url: `https://barikoi.xyz/v1/api/search/autocomplete/MTc6UkFRMUJJSVlLVQ==/place`,
+                type: 'GET',
+                dataType: "json",
+                data: {
+                    q: request.term
+                },
+                success: function(data) {
+                    let places = data.places;
+
+                    function prepareData(item) {
+                        return {
+                            'label': item.address,
+                            'id': item.id,
+                            'address': item.address,
+                            'area': item.area,
+                            'city': item.city,
+                            'latitude': item.latitude,
+                            'longitude': item.longitude,
+                        }
+                    }
+
+                    response(places.map(prepareData));
+                }
+            });
+        },
+        select: function(event, ui) {
+            selectedPlace = ui.item;
+            defaultMarker = [ui.item.latitude, ui.item.longitude];
+            dest_lat = ui.item.latitude
+            dest_lng = ui.item.longitude
+            setMapPointer();
+            
+            routing_data1 = L.Routing.control({
+                waypoints: [
+
+                    L.latLng(source_lat, source_lng),
+                    L.latLng(dest_lat, dest_lng)
+                ],
+                lineOptions: {
+                    styles: [{color: 'green', opacity: 1, weight: 5}]
+                },
+                routeWhileDragging: true,
+                router: L.Routing.graphHopper(undefined /* no api key */ , {
+                    serviceUrl: 'https://admin.barikoi.xyz:8090/route/v1/car/',
+                    urlParameters: { //'ch.disable': true,
+                        // block_area: '23.869519,90.387287,50'
+                    }
+                })
+                //  router: L.Routing.graphHopper('25d582b4-ba14-4bdd-a43f-03d02919283f')
+            }).addTo(map);
+
+            routing_data2 = L.Routing.control({
+                waypoints: [
+
+                    L.latLng(source_lat, source_lng),
+                    L.latLng(dest_lat, dest_lng)
+                ],
+                lineOptions: {
+                    styles: [{color: 'red', opacity: 1, weight: 5}]
+                },
+                routeWhileDragging: true,
+                router: L.Routing.graphHopper(undefined /* no api key */ , {
+                    serviceUrl: 'https://admin.barikoi.xyz:8090/route/v1/car/',
+                    urlParameters: { 'ch.disable': true,
+                        block_area: '23.869519,90.387287,50'
+                    }
+                })
+                //  router: L.Routing.graphHopper('25d582b4-ba14-4bdd-a43f-03d02919283f')
+            }).addTo(map);
+
+            
+        }
+    });
+
+
+});
+
+function setMapPointer() {
+    map.setView(defaultMarker, 13);
+
+    // L.tileLayer(
+    //     'http://geoserver.barikoi.com:8099/styles/osm-liberty/{z}/{x}/{y}.png', {
+    //         maxZoom: 18
+    //     }).addTo(map)
+
+    mpLayer.addLayer(L.marker(defaultMarker));
+
+    // L.marker(defaultMarker).addTo(map)
+
+}
+
+
+
+map.on('draw:created', function (e) {
+                var type = e.layerType,
+                layer = e.layer;
+                var layer = e.layer;
+                drawnItems.addLayer(layer);
+                var array = []
+
+                try{
+                    map.removeControl(routing_data);
+                }
+                catch(e){
+                    routing_data = L.Routing.control({
+                    waypoints: [
+
+                        L.latLng(23.32423, 90.2343),
+                        L.latLng(23.32423, 90.2343)
+                    ],
+                    routeWhileDragging: true,
+                    //  router: L.Routing.graphHopper('25d582b4-ba14-4bdd-a43f-03d02919283f')
+                })
+                    map.removeControl(routing_data);
+                }
+
+                switch (layer.toGeoJSON().geometry.type) {
+                    case "Polygon":
+                        console.log(layer)
+                        let northeast_lat = layer._bounds._northEast.lat
+                        let northeast_lng = layer._bounds._northEast.lng
+                        let southwest_lat = layer._bounds._southWest.lat
+                        let southwest_lng = layer._bounds._southWest.lng
+
+                        var block_area_data = [northeast_lat, northeast_lng, southwest_lat, southwest_lng]
+
+                        routing_data = L.Routing.control({
+                            waypoints: [
+
+                                L.latLng(source_lat, source_lng),
+                                L.latLng(dest_lat, dest_lng)
+                            ],
+                            routeWhileDragging: true,
+                            router: L.Routing.graphHopper(undefined /* no api key */ , {
+                                serviceUrl: 'https://admin.barikoi.xyz:8090/route/v1/car/',
+                                urlParameters: { 
+                                    'ch.disable': true,
+                                    // block_area: `${northeast_lat},${northeast_lng},${northeast_lat},${northeast_lat}`
+                                    block_area: block_area_data
+                                }
+                            })
+                            //  router: L.Routing.graphHopper('25d582b4-ba14-4bdd-a43f-03d02919283f')
+                        }).addTo(map);
+                        break;
+
+                    case "Point":
+                        let circle_rad = layer.options.radius
+                        let circle_lat = layer._latlng.lat
+                        let circle_lng = layer._latlng.lng
+                        console.log(circle_rad)
+                        console.log(circle_lng)
+                        var block_area_data = [circle_lat, circle_lng, Math.round(circle_rad)]
+
+                        routing_data = L.Routing.control({
+                            waypoints: [
+
+                                L.latLng(source_lat, source_lng),
+                                L.latLng(dest_lat, dest_lng)
+                            ],
+                            routeWhileDragging: true,
+                            router: L.Routing.graphHopper(undefined /* no api key */ , {
+                                serviceUrl: 'https://admin.barikoi.xyz:8090/route/v1/car/',
+                                urlParameters: { 
+                                    'ch.disable': true,
+                                    // block_area: `${circle_lat},${circle_lng},${circle_rad}`
+                                    block_area: block_area_data
+                                }
+                            })
+                            //  router: L.Routing.graphHopper('25d582b4-ba14-4bdd-a43f-03d02919283f')
+                        }).addTo(map);
+                       
+                        break;
+                    default:
+                        console.log(layer)
+                        break;
+                }
+
+                // layer.toGeoJSON().geometry.coordinates[0].map(function (ary) {
+
+                //     array.push(ary.join(' '));
+                // });
+                // var temparay = array.reduce(
+                //     (accumulator, currentValue) => accumulator.concat(currentValue),
+                //     []
+                // );
+
+                // console.log(temparay)
+                //console.log(JSON.stringify(layer.toGeoJSON().geometry.coordinates[0]));
+
+
+                drawnItems.addLayer(layer);
+            });
+
+
+
+</script>
+
+</html>
